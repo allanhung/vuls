@@ -99,6 +99,14 @@ func GetEOL(family, release string) (eol EOL, found bool) {
 			"9":  {StandardSupportUntil: time.Date(2032, 5, 31, 23, 59, 59, 0, time.UTC)},
 			"10": {StandardSupportUntil: time.Date(2035, 5, 31, 23, 59, 59, 0, time.UTC)},
 		}[major(release)]
+	case constant.Alinux:
+		// https://www.alibabacloud.com/help/en/alinux/product-overview/lifecycle-of-alibaba-cloud-linux
+		// Dates below are the published EOL for the 3.2104 LTS line and the
+		// projected 4.x window; refine when Alibaba publishes firm 4.x dates.
+		eol, found = map[string]EOL{
+			"3": {StandardSupportUntil: time.Date(2030, 3, 31, 23, 59, 59, 0, time.UTC)},
+			"4": {StandardSupportUntil: time.Date(2033, 3, 31, 23, 59, 59, 0, time.UTC)},
+		}[major(release)]
 	case constant.Oracle:
 		eol, found = map[string]EOL{
 			// Source:

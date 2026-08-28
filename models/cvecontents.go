@@ -445,6 +445,8 @@ func GetCveContentTypes(family string) []CveContentType {
 		return []CveContentType{Alma}
 	case constant.Rocky:
 		return []CveContentType{Rocky}
+	case constant.Alinux:
+		return []CveContentType{NewCveContentType(constant.Alinux)}
 	case constant.Fedora:
 		return []CveContentType{Fedora}
 	case constant.Oracle:

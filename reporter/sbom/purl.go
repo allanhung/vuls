@@ -14,7 +14,7 @@ import (
 func osPkgToPURL(osFamily, osVersion string, pkg models.Package) *packageurl.PackageURL {
 	var pType string
 	switch osFamily {
-	case constant.Alma, constant.Amazon, constant.CentOS, constant.Fedora, constant.OpenSUSE, constant.OpenSUSELeap, constant.Oracle, constant.RedHat, constant.Rocky, constant.SUSEEnterpriseDesktop, constant.SUSEEnterpriseServer:
+	case constant.Alma, constant.Alinux, constant.Amazon, constant.CentOS, constant.Fedora, constant.OpenSUSE, constant.OpenSUSELeap, constant.Oracle, constant.RedHat, constant.Rocky, constant.SUSEEnterpriseDesktop, constant.SUSEEnterpriseServer:
 		pType = packageurl.TypeRPM
 	case constant.Alpine:
 		pType = packageurl.TypeApk

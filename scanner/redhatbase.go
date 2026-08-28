@@ -903,7 +903,7 @@ func (o *redhatBase) isExecNeedsRestarting() bool {
 			return true
 		}
 		return false
-	case constant.RedHat, constant.CentOS, constant.Alma, constant.Rocky, constant.Oracle:
+	case constant.RedHat, constant.CentOS, constant.Alma, constant.Rocky, constant.Oracle, constant.Alinux:
 		majorVersion, err := o.Distro.MajorVersion()
 		if err != nil || majorVersion < 6 {
 			o.log.Errorf("Not implemented yet: %s, err: %+v", o.Distro, err)

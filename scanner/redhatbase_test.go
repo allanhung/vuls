@@ -2,6 +2,7 @@ package scanner
 
 import (
 	"reflect"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/future-architect/vuls/constant"
 	"github.com/future-architect/vuls/logging"
 	"github.com/future-architect/vuls/models"
+	"github.com/future-architect/vuls/util"
 )
 
 func Test_redhatBase_parseInstalledPackages(t *testing.T) {
@@ -454,30 +456,77 @@ kernel 0 6.6.102 5.3.3.alnx4 x86_64 kernel-6.6.102-5.3.3.alnx4.src.rpm (none)`,
 	}
 }
 
+// TestDetectAlinux exercises the parsing logic of the `ls /etc/alinux-release`
+// block in redhatBase.detectDistro without an exec-mock harness. For each
+// `cat /etc/alinux-release` sample it runs the same expressions the block runs:
+//
+//	result  := releasePattern.FindStringSubmatch(strings.TrimSpace(<stdout>))
+//	release := result[2]
+//	major, _ := strconv.Atoi(util.Major(release))          // major < 3 => not supported
+//	name    := strings.ToLower(strings.TrimSpace(strings.Replace(result[1], "(Aliyun Linux)", "", 1)))
+//	// name == "alibaba cloud linux" => setDistro(constant.Alinux, release)
 func TestDetectAlinux(t *testing.T) {
-	// cat /etc/alinux-release output -> expected (family, release)
 	tests := []struct {
-		release     string
-		wantFamily  string
-		wantRelease string
-		wantErr     bool
+		input           string
+		wantName        string
+		wantRelease     string
+		wantMajor       int
+		wantUnsupported bool // major < 3: block records an error instead of setDistro
 	}{
-		{"Alibaba Cloud Linux release 4 (OpenAnolis Edition) ", constant.Alinux, "4", false},
-		{"Alibaba Cloud Linux release 3.2104 (Soaring Falcon) ", constant.Alinux, "3.2104", false},
-		{"Alibaba Cloud Linux (Aliyun Linux) release 2.1903 (Hunting Beagle) ", "", "", true}, // major 2 unsupported
+		{
+			// -> setDistro(constant.Alinux, "4")
+			input:       "Alibaba Cloud Linux release 4 (OpenAnolis Edition) ",
+			wantName:    "alibaba cloud linux",
+			wantRelease: "4",
+			wantMajor:   4,
+		},
+		{
+			// -> setDistro(constant.Alinux, "3.2104")
+			input:       "Alibaba Cloud Linux release 3.2104 (Soaring Falcon) ",
+			wantName:    "alibaba cloud linux",
+			wantRelease: "3.2104",
+			wantMajor:   3,
+		},
+		{
+			// major 2: "versions prior to Alibaba Cloud Linux 3 are not supported"
+			input:           "Alibaba Cloud Linux (Aliyun Linux) release 2.1903 (Hunting Beagle) ",
+			wantName:        "alibaba cloud linux",
+			wantRelease:     "2.1903",
+			wantMajor:       2,
+			wantUnsupported: true,
+		},
 	}
 	for _, tt := range tests {
-		got := releasePattern.FindStringSubmatch(strings.TrimSpace(tt.release))
-		if len(got) != 3 {
-			if !tt.wantErr {
-				t.Fatalf("releasePattern did not match %q", tt.release)
+		t.Run(tt.input, func(t *testing.T) {
+			result := releasePattern.FindStringSubmatch(strings.TrimSpace(tt.input))
+			if len(result) != 3 {
+				t.Fatalf("releasePattern.FindStringSubmatch(%q) returned %d submatches, want 3", tt.input, len(result))
 			}
-			continue
-		}
-		// name is got[1], version got[2]
-		if strings.ToLower(strings.TrimSpace(strings.TrimSuffix(got[1], "(Aliyun Linux)"))) == "" {
-			t.Fatalf("unexpected name parse for %q", tt.release)
-		}
+
+			release := result[2]
+			if release != tt.wantRelease {
+				t.Errorf("release = %q, want %q", release, tt.wantRelease)
+			}
+
+			major, err := strconv.Atoi(util.Major(release))
+			if err != nil {
+				t.Fatalf("strconv.Atoi(util.Major(%q)) unexpected error: %v", release, err)
+			}
+			if major != tt.wantMajor {
+				t.Errorf("major = %d, want %d", major, tt.wantMajor)
+			}
+			if got := major < 3; got != tt.wantUnsupported {
+				t.Errorf("major < 3 (unsupported) = %v, want %v", got, tt.wantUnsupported)
+			}
+
+			name := strings.ToLower(strings.TrimSpace(strings.Replace(result[1], "(Aliyun Linux)", "", 1)))
+			if name != tt.wantName {
+				t.Errorf("name = %q, want %q", name, tt.wantName)
+			}
+			if !tt.wantUnsupported && name != "alibaba cloud linux" {
+				t.Errorf("name = %q would not match the setDistro(constant.Alinux, %q) case", name, release)
+			}
+		})
 	}
 }
 

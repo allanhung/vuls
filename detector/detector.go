@@ -236,7 +236,7 @@ func DetectPkgCves(r *models.ScanResult, sesh *vuls2.Session) error {
 		if err := vuls2.DetectPkgs(r, sesh); err != nil {
 			return xerrors.Errorf("Failed to detect CVE with Vuls2: %w", err)
 		}
-	case constant.RedHat, constant.CentOS, constant.Fedora, constant.Alma, constant.Rocky, constant.Oracle, constant.Amazon,
+	case constant.RedHat, constant.CentOS, constant.Fedora, constant.Alma, constant.Rocky, constant.Alinux, constant.Oracle, constant.Amazon,
 		constant.OpenSUSE, constant.OpenSUSELeap, constant.SUSEEnterpriseServer, constant.SUSEEnterpriseDesktop,
 		constant.Debian, constant.Raspbian, constant.Ubuntu, constant.Alpine:
 		switch {

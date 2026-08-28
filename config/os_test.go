@@ -241,6 +241,39 @@ func TestEOL_IsStandardSupportEnded(t *testing.T) {
 			extEnded: false,
 			found:    false,
 		},
+		// Alibaba Cloud Linux
+		{
+			name:     "Alibaba Cloud Linux 3 supported",
+			fields:   fields{family: constant.Alinux, release: "3.2104"},
+			now:      time.Date(2027, 1, 1, 0, 0, 0, 0, time.UTC),
+			stdEnded: false,
+			extEnded: false,
+			found:    true,
+		},
+		{
+			name:     "Alibaba Cloud Linux 4 supported",
+			fields:   fields{family: constant.Alinux, release: "4"},
+			now:      time.Date(2027, 1, 1, 0, 0, 0, 0, time.UTC),
+			stdEnded: false,
+			extEnded: false,
+			found:    true,
+		},
+		{
+			name:     "Alibaba Cloud Linux 4 eol on 2033-03-31",
+			fields:   fields{family: constant.Alinux, release: "4"},
+			now:      time.Date(2033, 4, 1, 0, 0, 0, 0, time.UTC),
+			stdEnded: true,
+			extEnded: true,
+			found:    true,
+		},
+		{
+			name:     "Alibaba Cloud Linux 2 Not Found",
+			fields:   fields{family: constant.Alinux, release: "2.1903"},
+			now:      time.Date(2027, 1, 1, 0, 0, 0, 0, time.UTC),
+			stdEnded: false,
+			extEnded: false,
+			found:    false,
+		},
 		//Oracle
 		{
 			name:     "Oracle Linux 6 eol",
