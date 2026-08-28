@@ -163,25 +163,45 @@ Corruption rate measured on 2026-08-28 data:
 | alinux-4 | 4 696 | 3 905 (83 %) |
 
 The same corruption is present in the criterion `comment`, so the comment is
-**not** a usable fallback. What *is* reliable: the true `version-release` is
-shared by every package in one advisory's OR group and appears cleanly on
-the base packages (`kernel`, `bpftool`, …). The real version is intact — it
-is only *prefixed* with a lowercase-letter-led `token-` run.
+**not** a usable fallback. The real `version-release` is intact — it is only
+*prefixed* with one or more spliced `token-` runs (the fragment comes from a
+sub-package name, sometimes the package's own, often mis-shifted from a
+sibling; fragments can be mixed-case and can contain dots and digits).
+
+> **Revised during implementation (Task 3).** The first mitigation below —
+> blind lowercase-token strip + a hard "repaired value must equal a clean
+> anchor in the same OR group" gate — was found unshippable against the full
+> dataset: ~1,110 repairs in majors 3/4 legitimately contradict every clean
+> anchor (multi-source advisories carry two different correct versions in one
+> OR group; some corrupted packages have no clean sibling). It was replaced
+> with the **RPM dash-count invariant** (see below), which is simpler and
+> rests on an RPM rule rather than a shape heuristic.
 
 **Mitigation — normalise in `pkg/extract/alinux/oval` only** (never in shared
-code):
+code). RPM forbids `-` in **both** the version and the release, so a
+well-formed EVR body (`epoch:body`) contains **exactly one** `-`. A
+prefix-splice always *adds* `token-` runs, so a corrupted body has **two or
+more** dashes, and the true body is always the **last two `-`-separated
+tokens** (`version-release`):
 
-1. For each EVR: split off the leading `^(\d+):` epoch. If the remainder
-   already starts with a digit, keep it. Otherwise strip a leading
-   `([0-9A-Za-z_.+]+-)+` run until the remainder starts with a digit, then
-   reattach the epoch.
-2. Cross-check: collect the set of *clean* EVRs in the same OR group
-   (`^\d+:\d…`). Every normalised EVR in the group must equal one of them.
-   If a group has **no** clean anchor, fail the extract for that definition
-   with a logged error (so silent data loss is impossible and upstream
-   regressions are caught).
-3. Emit a one-line `slog.Warn` counter of how many EVRs were repaired, per
-   file, so the scale stays visible.
+1. Split `epoch:body` on the first `:` (error if absent).
+2. `n := strings.Count(body, "-")`. `n == 1` → already clean, keep as-is.
+   `n == 0` → fail the definition (no version–release separator).
+   `n >= 2` → `epoch + ":" + strings.Join(split(body,"-")[-2:], "-")`.
+3. Retain `sanitizeEVR` (the blind-strip + clean-anchor gate) and its unit
+   test as an unreachable last-resort fallback before the error path.
+4. Any repair failure → wrap with the definition id and **return** the error
+   (the whole definition is dropped; no partial data — "better to drop one
+   advisory than emit a wrong version", since a wrong `lessThan` is a silent
+   false negative in the scanner).
+5. `slog.Warn` a repaired-count once per version directory.
+6. A committed test asserts every emitted `lessThan` / `fixed` matches
+   `^\d+:[^-]+-[^-]+$` — the predicate that catches a regression to
+   emitting corrupted versions.
+
+Validated over all 17,296 `rpminfo_state` entries in majors 3/4: the
+dash-count rule yields a well-formed `epoch:version-release` for 100 % of
+them. The corruption rate itself is unchanged from the table above.
 
 **Also:** file a bug with Alibaba Cloud Linux / OpenAnolis
 (`ali-yum@alibaba-inc.com`, or the alinux mirror issue tracker) — this
