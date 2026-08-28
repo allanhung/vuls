@@ -68,6 +68,7 @@ func toVuls2Family(vuls0Family, vuls0Release string) string {
 			return vuls0Family
 		}
 	default:
+		// alinux, oracle, alma, rocky, centos, ... map 1:1 to their ecosystem type.
 		return vuls0Family
 	}
 }
@@ -643,6 +644,12 @@ func advisoryReference(e ecosystemTypes.Ecosystem, s sourceTypes.SourceID, da mo
 			Source: "ORACLE",
 			RefID:  da.AdvisoryID,
 		}, nil
+	case ecosystemTypes.EcosystemTypeAlinux:
+		return models.Reference{
+			Link:   fmt.Sprintf("https://alas.aliyun.com/errata/detail/%s", da.AdvisoryID),
+			Source: "ALINUX",
+			RefID:  da.AdvisoryID,
+		}, nil
 	case ecosystemTypes.EcosystemTypeAmazon:
 		return models.Reference{
 			Link: func() string {
@@ -1205,7 +1212,7 @@ func toVuls0Confidence(e ecosystemTypes.Ecosystem, s sourceTypes.SourceID, sd so
 			DetectionMethod: models.DetectionMethod("EPELMatch"),
 			SortOrder:       1,
 		}
-	case ecosystemTypes.EcosystemTypeRedHat, ecosystemTypes.EcosystemTypeFedora, ecosystemTypes.EcosystemTypeAlma, ecosystemTypes.EcosystemTypeRocky, ecosystemTypes.EcosystemTypeOracle, ecosystemTypes.EcosystemTypeAmazon,
+	case ecosystemTypes.EcosystemTypeRedHat, ecosystemTypes.EcosystemTypeFedora, ecosystemTypes.EcosystemTypeAlma, ecosystemTypes.EcosystemTypeRocky, ecosystemTypes.EcosystemTypeOracle, ecosystemTypes.EcosystemTypeAlinux, ecosystemTypes.EcosystemTypeAmazon,
 		ecosystemTypes.EcosystemTypeSUSELinuxEnterprise, ecosystemTypes.EcosystemTypeOpenSUSE, ecosystemTypes.EcosystemTypeOpenSUSELeap, ecosystemTypes.EcosystemTypeOpenSUSETumbleweed, ecosystemTypes.EcosystemTypeAlpine:
 		return models.OvalMatch
 	case ecosystemTypes.EcosystemTypeDebian:

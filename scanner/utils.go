@@ -19,7 +19,7 @@ import (
 
 func isRunningKernel(pack models.Package, family, release string, kernel models.Kernel) (isKernel, running bool) {
 	switch family {
-	case constant.RedHat, constant.CentOS, constant.Alma, constant.Rocky, constant.Fedora, constant.Oracle, constant.Amazon:
+	case constant.RedHat, constant.CentOS, constant.Alma, constant.Rocky, constant.Fedora, constant.Oracle, constant.Amazon, constant.Alinux:
 		isKernel, kernelReleaseSuffix := func() (bool, string) {
 			switch pack.Name {
 			case "kernel", "kernel-core", "kernel-modules", "kernel-modules-core", "kernel-modules-extra", "kernel-modules-extra-common", "kernel-modules-internal", "kernel-modules-partner", "kernel-devel", "kernel-doc", "kernel-firmware", "kernel-headers",

@@ -2,12 +2,15 @@ package scanner
 
 import (
 	"reflect"
+	"strconv"
+	"strings"
 	"testing"
 
 	"github.com/future-architect/vuls/config"
 	"github.com/future-architect/vuls/constant"
 	"github.com/future-architect/vuls/logging"
 	"github.com/future-architect/vuls/models"
+	"github.com/future-architect/vuls/util"
 )
 
 func Test_redhatBase_parseInstalledPackages(t *testing.T) {
@@ -296,6 +299,141 @@ java-1.8.0-amazon-corretto 1 1.8.0_432.b06 1.amzn2 x86_64 java-1.8.0-amazon-corr
 				},
 			},
 		},
+		{
+			// ~10 real lines from `rpm -qa` on a live Alibaba Cloud Linux 4 host
+			// (NAME|EPOCHNUM|VERSION|RELEASE|ARCH from /tmp/alinux4/data.txt),
+			// re-rendered in the modularity `rpm -qa` stdout format the scanner
+			// consumes; source rpm names reconstructed, ModularityLabel `(none)`.
+			name: "alinux 4 (rpm -qa)",
+			fields: fields{base: base{
+				Distro: config.Distro{Family: constant.Alinux, Release: "4"},
+				log:    logging.NewIODiscardLogger(),
+			}},
+			args: args{
+				stdout: `alinux-release 0 4 13.1.alnx4 x86_64 alinux-release-4-13.1.alnx4.src.rpm (none)
+bash 0 5.2.15 2.alnx4 x86_64 bash-5.2.15-2.alnx4.src.rpm (none)
+curl 1 8.4.0 23.alnx4 x86_64 curl-8.4.0-23.alnx4.src.rpm (none)
+dnf 0 4.16.2 3.alnx4 noarch dnf-4.16.2-3.alnx4.src.rpm (none)
+glibc 0 2.38 17.2.alnx4 x86_64 glibc-2.38-17.2.alnx4.src.rpm (none)
+openssl-libs 1 3.0.12 28.1.alnx4 x86_64 openssl-3.0.12-28.1.alnx4.src.rpm (none)
+sudo 0 1.9.15p5 4.alnx4 x86_64 sudo-1.9.15p5-4.alnx4.src.rpm (none)
+systemd 0 255 16.1.alnx4 x86_64 systemd-255-16.1.alnx4.src.rpm (none)
+kernel 0 6.6.102 5.3.1.alnx4 x86_64 kernel-6.6.102-5.3.1.alnx4.src.rpm (none)
+kernel 0 6.6.102 5.3.3.alnx4 x86_64 kernel-6.6.102-5.3.3.alnx4.src.rpm (none)`,
+			},
+			wantbps: models.Packages{
+				"alinux-release": models.Package{
+					Name:    "alinux-release",
+					Version: "4",
+					Release: "13.1.alnx4",
+					Arch:    "x86_64",
+				},
+				"bash": models.Package{
+					Name:    "bash",
+					Version: "5.2.15",
+					Release: "2.alnx4",
+					Arch:    "x86_64",
+				},
+				"curl": models.Package{
+					Name:    "curl",
+					Version: "1:8.4.0",
+					Release: "23.alnx4",
+					Arch:    "x86_64",
+				},
+				"dnf": models.Package{
+					Name:    "dnf",
+					Version: "4.16.2",
+					Release: "3.alnx4",
+					Arch:    "noarch",
+				},
+				"glibc": models.Package{
+					Name:    "glibc",
+					Version: "2.38",
+					Release: "17.2.alnx4",
+					Arch:    "x86_64",
+				},
+				"openssl-libs": models.Package{
+					Name:    "openssl-libs",
+					Version: "1:3.0.12",
+					Release: "28.1.alnx4",
+					Arch:    "x86_64",
+				},
+				"sudo": models.Package{
+					Name:    "sudo",
+					Version: "1.9.15p5",
+					Release: "4.alnx4",
+					Arch:    "x86_64",
+				},
+				"systemd": models.Package{
+					Name:    "systemd",
+					Version: "255",
+					Release: "16.1.alnx4",
+					Arch:    "x86_64",
+				},
+				"kernel": models.Package{
+					Name:    "kernel",
+					Version: "6.6.102",
+					Release: "5.3.3.alnx4",
+					Arch:    "x86_64",
+				},
+			},
+			wantsps: models.SrcPackages{
+				"alinux-release": models.SrcPackage{
+					Name:        "alinux-release",
+					Version:     "4-13.1.alnx4",
+					Arch:        "src",
+					BinaryNames: []string{"alinux-release"},
+				},
+				"bash": models.SrcPackage{
+					Name:        "bash",
+					Version:     "5.2.15-2.alnx4",
+					Arch:        "src",
+					BinaryNames: []string{"bash"},
+				},
+				"curl": models.SrcPackage{
+					Name:        "curl",
+					Version:     "1:8.4.0-23.alnx4",
+					Arch:        "src",
+					BinaryNames: []string{"curl"},
+				},
+				"dnf": models.SrcPackage{
+					Name:        "dnf",
+					Version:     "4.16.2-3.alnx4",
+					Arch:        "src",
+					BinaryNames: []string{"dnf"},
+				},
+				"glibc": models.SrcPackage{
+					Name:        "glibc",
+					Version:     "2.38-17.2.alnx4",
+					Arch:        "src",
+					BinaryNames: []string{"glibc"},
+				},
+				"openssl": models.SrcPackage{
+					Name:        "openssl",
+					Version:     "1:3.0.12-28.1.alnx4",
+					Arch:        "src",
+					BinaryNames: []string{"openssl-libs"},
+				},
+				"sudo": models.SrcPackage{
+					Name:        "sudo",
+					Version:     "1.9.15p5-4.alnx4",
+					Arch:        "src",
+					BinaryNames: []string{"sudo"},
+				},
+				"systemd": models.SrcPackage{
+					Name:        "systemd",
+					Version:     "255-16.1.alnx4",
+					Arch:        "src",
+					BinaryNames: []string{"systemd"},
+				},
+				"kernel": models.SrcPackage{
+					Name:        "kernel",
+					Version:     "6.6.102-5.3.3.alnx4",
+					Arch:        "src",
+					BinaryNames: []string{"kernel"},
+				},
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -313,6 +451,92 @@ java-1.8.0-amazon-corretto 1 1.8.0_432.b06 1.amzn2 x86_64 java-1.8.0-amazon-corr
 			}
 			if !reflect.DeepEqual(gotsps, tt.wantsps) {
 				t.Errorf("redhatBase.parseInstalledPackages() gotsps = %v, wantsps %v", gotsps, tt.wantsps)
+			}
+		})
+	}
+}
+
+// TestDetectAlinux exercises the parsing logic of the `ls /etc/alinux-release`
+// block in redhatBase.detectDistro without an exec-mock harness. For each
+// `cat /etc/alinux-release` sample it runs the same expressions the block runs:
+//
+//	result  := releasePattern.FindStringSubmatch(strings.TrimSpace(<stdout>))
+//	release := result[2]
+//	major, _ := strconv.Atoi(util.Major(release))          // major < 3 => not supported
+//	name    := strings.ToLower(strings.TrimSpace(strings.Replace(result[1], "(Aliyun Linux)", "", 1)))
+//	// name == "alibaba cloud linux" => setDistro(constant.Alinux, release)
+//
+// This mirrors the block's logic rather than driving detectRedhat through a
+// stubbed exec: scanner's `exec` is a plain top-level function (executil.go),
+// not a package var, and the scanner test suite has no exec-mock harness, so a
+// true end-to-end test here would need `exec` converted to an injectable var —
+// a broad change across every call site, out of scope for this fix wave.
+//
+// The `/etc/alinux-release` strings below are from live hosts:
+//   - Alinux 4: "Alibaba Cloud Linux release 4 (OpenAnolis Edition)" (ssh 10.21.34.9)
+//   - Alinux 3: derived from /tmp/alinux3/os-release.txt — VERSION_ID="3",
+//     ALINUX_MINOR_ID="2104" => release "3.2104"
+//   - Alinux 2 (unsupported): "Alibaba Cloud Linux (Aliyun Linux) release 2.1903 (Hunting Beagle)"
+func TestDetectAlinux(t *testing.T) {
+	tests := []struct {
+		input           string
+		wantName        string
+		wantRelease     string
+		wantMajor       int
+		wantUnsupported bool // major < 3: block records an error instead of setDistro
+	}{
+		{
+			// -> setDistro(constant.Alinux, "4")
+			input:       "Alibaba Cloud Linux release 4 (OpenAnolis Edition) ",
+			wantName:    "alibaba cloud linux",
+			wantRelease: "4",
+			wantMajor:   4,
+		},
+		{
+			// -> setDistro(constant.Alinux, "3.2104")
+			input:       "Alibaba Cloud Linux release 3.2104 (Soaring Falcon) ",
+			wantName:    "alibaba cloud linux",
+			wantRelease: "3.2104",
+			wantMajor:   3,
+		},
+		{
+			// major 2: "versions prior to Alibaba Cloud Linux 3 are not supported"
+			input:           "Alibaba Cloud Linux (Aliyun Linux) release 2.1903 (Hunting Beagle) ",
+			wantName:        "alibaba cloud linux",
+			wantRelease:     "2.1903",
+			wantMajor:       2,
+			wantUnsupported: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			result := releasePattern.FindStringSubmatch(strings.TrimSpace(tt.input))
+			if len(result) != 3 {
+				t.Fatalf("releasePattern.FindStringSubmatch(%q) returned %d submatches, want 3", tt.input, len(result))
+			}
+
+			release := result[2]
+			if release != tt.wantRelease {
+				t.Errorf("release = %q, want %q", release, tt.wantRelease)
+			}
+
+			major, err := strconv.Atoi(util.Major(release))
+			if err != nil {
+				t.Fatalf("strconv.Atoi(util.Major(%q)) unexpected error: %v", release, err)
+			}
+			if major != tt.wantMajor {
+				t.Errorf("major = %d, want %d", major, tt.wantMajor)
+			}
+			if got := major < 3; got != tt.wantUnsupported {
+				t.Errorf("major < 3 (unsupported) = %v, want %v", got, tt.wantUnsupported)
+			}
+
+			name := strings.ToLower(strings.TrimSpace(strings.Replace(result[1], "(Aliyun Linux)", "", 1)))
+			if name != tt.wantName {
+				t.Errorf("name = %q, want %q", name, tt.wantName)
+			}
+			if !tt.wantUnsupported && name != "alibaba cloud linux" {
+				t.Errorf("name = %q would not match the setDistro(constant.Alinux, %q) case", name, release)
 			}
 		})
 	}

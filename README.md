@@ -47,7 +47,7 @@ Vuls is a tool created to solve the problems listed above. It has the following 
 
 [Supports major Linux/FreeBSD/Windows/macOS](https://vuls.io/docs/en/supported-os.html)
 
-- Alpine, Amazon Linux, CentOS, AlmaLinux, Rocky Linux, Debian, Oracle Linux, Raspbian, RHEL, openSUSE, openSUSE Leap, SUSE Enterprise Linux, Fedora, and Ubuntu
+- Alpine, Amazon Linux, CentOS, AlmaLinux, Rocky Linux, Alibaba Cloud Linux, Debian, Oracle Linux, Raspbian, RHEL, openSUSE, openSUSE Leap, SUSE Enterprise Linux, Fedora, and Ubuntu
 - FreeBSD
 - Windows
 - macOS
@@ -108,15 +108,15 @@ Vuls is a tool created to solve the problems listed above. It has the following 
 
 - Scan without root privilege, no dependencies
 - Almost no load on the scan target server
-- Offline mode scan with no internet access. (CentOS, Alma Linux, Rocky Linux, Debian, Oracle Linux, Red Hat, Fedora, and Ubuntu)
+- Offline mode scan with no internet access. (CentOS, Alma Linux, Rocky Linux, Alibaba Cloud Linux, Debian, Oracle Linux, Red Hat, Fedora, and Ubuntu)
 
 [Fast Root Scan](https://vuls.io/docs/en/architecture-fast-root-scan.html)
 
 - Scan with root privilege
 - Almost no load on the scan target server
-- Detect processes affected by update using yum-ps (Amazon Linux, CentOS, Alma Linux, Rocky Linux, Oracle Linux, Fedora, and RedHat)
+- Detect processes affected by update using yum-ps (Amazon Linux, CentOS, Alma Linux, Rocky Linux, Oracle Linux, Alibaba Cloud Linux, Fedora, and RedHat)
 - Detect processes which updated before but not restarting yet using checkrestart of debian-goodies (Debian and Ubuntu)
-- Offline mode scan with no internet access. (CentOS, Alma Linux, Rocky Linux, Debian, Oracle Linux, Red Hat, Fedora, and Ubuntu)
+- Offline mode scan with no internet access. (CentOS, Alma Linux, Rocky Linux, Alibaba Cloud Linux, Debian, Oracle Linux, Red Hat, Fedora, and Ubuntu)
 
 ### [Remote, Local scan mode, Server mode](https://vuls.io/docs/en/architecture-remote-local.html)
 

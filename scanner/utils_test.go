@@ -129,6 +129,42 @@ func Test_isRunningKernel(t *testing.T) {
 			wantRunning:  false,
 		},
 		{
+			name: "Alibaba Cloud Linux kernel and running",
+			args: args{
+				pack: models.Package{
+					Name:    "kernel",
+					Version: "6.6.102",
+					Release: "5.3.3.alnx4",
+					Arch:    "x86_64",
+				},
+				family:  constant.Alinux,
+				release: "4",
+				kernel: models.Kernel{
+					Release: "6.6.102-5.3.3.alnx4.x86_64",
+				},
+			},
+			wantIsKernel: true,
+			wantRunning:  true,
+		},
+		{
+			name: "Alibaba Cloud Linux kernel but not running",
+			args: args{
+				pack: models.Package{
+					Name:    "kernel",
+					Version: "6.6.102",
+					Release: "5.3.1.alnx4",
+					Arch:    "x86_64",
+				},
+				family:  constant.Alinux,
+				release: "4",
+				kernel: models.Kernel{
+					Release: "6.6.102-5.3.3.alnx4.x86_64",
+				},
+			},
+			wantIsKernel: true,
+			wantRunning:  false,
+		},
+		{
 			name: "kernel is kernel-debug, but pack is kernel",
 			args: args{
 				pack: models.Package{

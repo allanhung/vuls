@@ -276,6 +276,8 @@ func ParseInstalledPkgs(distro config.Distro, kernel models.Kernel, pkgList stri
 		osType = &alma{redhatBase: redhatBase{base: base}}
 	case constant.Rocky:
 		osType = &rocky{redhatBase: redhatBase{base: base}}
+	case constant.Alinux:
+		osType = &alinux{redhatBase: redhatBase{base: base}}
 	case constant.Oracle:
 		osType = &oracle{redhatBase: redhatBase{base: base}}
 	case constant.Amazon:
