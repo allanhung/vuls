@@ -35,9 +35,9 @@
 
 ## Phase A — vuls-data-update
 
-Repo: `/Users/allan/Downloads/git/allanhung/vuls-data-update`. Create branch `feat/alinux-oval` off `main` before Task A1.
+Repo: `/Users/allan/Downloads/git/allanhung/vuls-data-update`. Create branch `feat/alinux-oval` off `nightly` before Task 1.
 
-### Task A1: Shared contract — ecosystem type + source id
+### Task 1: Shared contract — ecosystem type + source id
 
 **Files:**
 - Modify: `pkg/extract/types/data/detection/segment/ecosystem/ecosystem.go` (const block ~line 11-34; `GetEcosystem` `case EcosystemTypeOracle` ~line 88; error list ~line 149)
@@ -130,7 +130,7 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 
 ---
 
-### Task A2: Fetcher — `pkg/fetch/alinux/oval`
+### Task 2: Fetcher — `pkg/fetch/alinux/oval`
 
 **Files:**
 - Create: `pkg/fetch/alinux/oval/types.go`
@@ -142,7 +142,7 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 
 **Interfaces:**
 - Consumes: nothing from earlier tasks.
-- Produces: `oval.Fetch(oval.WithBaseURL(string), oval.WithDir(string), oval.WithRetry(int)) error`. Writes `<dir>/<ver>/definitions/<id>.json`, `<dir>/<ver>/tests/rpminfo_test/<id>.json`, `.../tests/textfilecontent54_test/<id>.json`, `.../objects/rpminfo_object/<id>.json`, `.../objects/textfilecontent54_object/<id>.json`, `.../states/rpminfo_state/<id>.json`, `.../states/textfilecontent54_state/<id>.json`, where `<ver>` is the raw suffix from the filename (`2.1903`, `3.2104`, `4`). Exported named types: `oval.Definition`, `oval.Criteria`, `oval.Criterion`, `oval.RpminfoTest`, `oval.RpminfoObject`, `oval.RpminfoState`, `oval.Textfilecontent54Test`, `oval.Textfilecontent54Object`, `oval.Textfilecontent54State` (consumed by Task A3).
+- Produces: `oval.Fetch(oval.WithBaseURL(string), oval.WithDir(string), oval.WithRetry(int)) error`. Writes `<dir>/<ver>/definitions/<id>.json`, `<dir>/<ver>/tests/rpminfo_test/<id>.json`, `.../tests/textfilecontent54_test/<id>.json`, `.../objects/rpminfo_object/<id>.json`, `.../objects/textfilecontent54_object/<id>.json`, `.../states/rpminfo_state/<id>.json`, `.../states/textfilecontent54_state/<id>.json`, where `<ver>` is the raw suffix from the filename (`2.1903`, `3.2104`, `4`). Exported named types: `oval.Definition`, `oval.Criteria`, `oval.Criterion`, `oval.RpminfoTest`, `oval.RpminfoObject`, `oval.RpminfoState`, `oval.Textfilecontent54Test`, `oval.Textfilecontent54Object`, `oval.Textfilecontent54State` (consumed by Task 3).
 
 - [ ] **Step 1: Write `types.go`**
 
@@ -658,19 +658,19 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 
 ---
 
-### Task A3: Extractor — `pkg/extract/alinux/oval`
+### Task 3: Extractor — `pkg/extract/alinux/oval`
 
 **Files:**
 - Create: `pkg/extract/alinux/oval/oval.go`
 - Create: `pkg/extract/alinux/oval/evr.go` (the normaliser — kept separate so it is trivially unit-testable)
 - Create: `pkg/extract/alinux/oval/evr_test.go`
 - Create: `pkg/extract/alinux/oval/oval_test.go`
-- Create: `pkg/extract/alinux/oval/testdata/fixtures/...` (fetch-shaped JSON tree; derive from Task A2's trimmed fixture by running the fetcher on it, or hand-write a minimal tree)
+- Create: `pkg/extract/alinux/oval/testdata/fixtures/...` (fetch-shaped JSON tree; derive from Task 2's trimmed fixture by running the fetcher on it, or hand-write a minimal tree)
 - Create: `pkg/extract/alinux/oval/testdata/golden/...`
 - Modify: `pkg/cmd/extract/extract.go` (import ~line 97; `cmd.AddCommand` list ~line 195; new `newCmdAlinuxOVAL` near `newCmdOracleLinux` ~line 2387)
 
 **Interfaces:**
-- Consumes: `oval.*` types from Task A2; `ecosystemTypes.EcosystemTypeAlinux`, `sourceTypes.AlinuxOVAL` from Task A1.
+- Consumes: `oval.*` types from Task 2; `ecosystemTypes.EcosystemTypeAlinux`, `sourceTypes.AlinuxOVAL` from Task 1.
 - Produces: `oval.Extract(inputDir string, opts ...oval.Option) error` (option `oval.WithDir(string)`). Writes `<dir>/data/<year>/<ADVISORY_ID>.json` (`:` in the id replaced with `-` for the filename) as `dataTypes.Data`, and `<dir>/datasource.json`. Emits detections with `Ecosystem` = `alinux:3` / `alinux:4`; skips majors other than 3/4.
 
 - [ ] **Step 1: Write the failing EVR normaliser test**
@@ -839,7 +839,7 @@ Start from `pkg/extract/oracle/linux/linux.go`. Changes:
 - [ ] **Step 6: Write `oval_test.go` (golden)**
 
 Model on `pkg/extract/oracle/linux/linux_test.go`. Build the input tree under
-`testdata/fixtures/` by running the Task A2 fetcher against its trimmed
+`testdata/fixtures/` by running the Task 2 fetcher against its trimmed
 `alinux-4.oval.xml` fixture (script it in the test's `TestMain` or check the
 tree in). Assert:
   - the corrupted-kernel advisory produces detections whose `LessThan` is the
@@ -916,7 +916,7 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 
 ---
 
-### Task A4: File the upstream bug + open the PR
+### Task 4: File the upstream bug + open the PR
 
 - [ ] **Step 1:** Add a code comment at the top of `pkg/extract/alinux/oval/evr.go` linking the upstream bug report once filed.
 - [ ] **Step 2:** File an issue with Alibaba Cloud Linux / OpenAnolis (mirror contact `ali-yum@alibaba-inc.com`, or the alinux repo tracker) describing the `<rpminfo_state>/<evr>` corruption, with the measured rates and 2–3 concrete `advisory-id / package / observed / expected` rows from §3.2 of the spec.
@@ -929,7 +929,7 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 
 Repo: `/Users/allan/Downloads/git/allanhung/vuls2`. Branch `feat/alinux` off `main`.
 
-### Task B1: Dependency bump + detection-path verification
+### Task 5: Dependency bump + detection-path verification
 
 **Files:**
 - Modify: `go.mod`, `go.sum`
@@ -981,7 +981,7 @@ func TestDetect_AlinuxEcosystemResolves(t *testing.T) {
 - [ ] **Step 3: Run it**
 
 Run: `go test ./pkg/detect/ospkg/ -run TestDetect_AlinuxEcosystemResolves -v`
-Expected: PASS once Step 1's replace is in (the constant now exists). If it FAILs with `unexpected family`, Phase A Task A1 is not actually on the local path — fix the replace / `go mod tidy`.
+Expected: PASS once Step 1's replace is in (the constant now exists). If it FAILs with `unexpected family`, Task 1 is not actually on the local path — fix the replace / `go mod tidy`.
 
 - [ ] **Step 4: Audit `base.go` for family gaps**
 
@@ -1025,12 +1025,12 @@ Open PR against `allanhung/vuls2:main`; note the merge SHA for Phase C.
 
 Repo: `/Users/allan/Downloads/git/allanhung/vuls`. Continue on branch `feat/alinux-support` (already has the spec commit).
 
-### Task C1: `constant.Alinux` + `scanner/alinux.go` + OS detection
+### Task 6: `constant.Alinux` + `scanner/alinux.go` + OS detection
 
 **Files:**
 - Modify: `constant/constant.go` (add after the `Oracle` block ~line 33)
 - Create: `scanner/alinux.go`
-- Modify: `scanner/redhatbase.go` (new detection block after the Oracle block ~line 70, before the AlmaLinux block ~line 72; `parseInstalledPackagesLineFromRepoquery` family list ~line 871 is Task C2)
+- Modify: `scanner/redhatbase.go` (new detection block after the Oracle block ~line 70, before the AlmaLinux block ~line 72; `parseInstalledPackagesLineFromRepoquery` family list ~line 871 is Task 7)
 - Modify: `scanner/scanner.go` (`ParseInstalledPkgs` switch ~line 279)
 - Test: `scanner/redhatbase_test.go`
 
@@ -1246,7 +1246,7 @@ In `scanner/redhatbase_test.go`, add a case to the existing `parseInstalledPacka
 - [ ] **Step 8: Run tests**
 
 Run: `go test ./scanner/ -run 'Alinux|ParseInstalled|Detect' -v`
-Expected: PASS. `go build ./...` green (there will still be `default`-case gaps elsewhere — those are Task C2; build must still pass since new family just isn't listed).
+Expected: PASS. `go build ./...` green (there will still be `default`-case gaps elsewhere — those are Task 7; build must still pass since new family just isn't listed).
 
 - [ ] **Step 9: Commit**
 
@@ -1263,7 +1263,7 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 
 ---
 
-### Task C2: Wire `constant.Alinux` into the remaining family switches
+### Task 7: Wire `constant.Alinux` into the remaining family switches
 
 **Files (all Modify):**
 - `config/os.go` (`GetEOL` — add case after `constant.Rocky` ~line 96)
@@ -1275,7 +1275,7 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 - Test: `config/os_test.go`, `scanner/utils_test.go` (extend existing tables)
 
 **Interfaces:**
-- Consumes: `constant.Alinux` (Task C1).
+- Consumes: `constant.Alinux` (Task 6).
 - Produces: `config.GetEOL("alinux", "4")` returns a populated `EOL` with `found == true`; `detector.DetectPkgCves` routes `alinux` through `vuls2.DetectPkgs`.
 
 - [ ] **Step 1: Write failing EOL test**
@@ -1385,14 +1385,14 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 
 ---
 
-### Task C3: Errata reference link (`detector/vuls2/vendor.go`)
+### Task 8: Errata reference link (`detector/vuls2/vendor.go`)
 
 **Files:**
 - Modify: `detector/vuls2/vendor.go` (`advisoryReference` — add case after `EcosystemTypeOracle` ~line 640; `toVuls2Family` — add clarifying comment only)
 - Test: `detector/vuls2/vendor_test.go` (extend if a table for `advisoryReference` exists; else add one)
 
 **Interfaces:**
-- Consumes: `ecosystemTypes.EcosystemTypeAlinux` (Phase A, on the local module path via Task C4's replace).
+- Consumes: `ecosystemTypes.EcosystemTypeAlinux` (Phase A, on the local module path via Task 9's replace).
 - Produces: `advisoryReference("alinux:4", sourceTypes.AlinuxOVAL, models.DistroAdvisory{AdvisoryID: "ALINUX4-SA-2026:0392"})` → `models.Reference{Link: "https://alas.aliyun.com/errata/detail/ALINUX4-SA-2026:0392", Source: "ALINUX", RefID: "ALINUX4-SA-2026:0392"}`.
 
 - [ ] **Step 1: Write the failing test**
@@ -1466,7 +1466,7 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 
 ---
 
-### Task C4: Cross-repo wiring + end-to-end test
+### Task 9: Cross-repo wiring + end-to-end test
 
 **Files:**
 - Modify: `go.mod`, `go.sum`
@@ -1554,7 +1554,7 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 
 ---
 
-### Task C5: Documentation
+### Task 10: Documentation
 
 **Files:**
 - Modify: `README.md` (supported-OS table / list)
@@ -1578,16 +1578,16 @@ Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>"
 ## Self-Review
 
 **Spec coverage:**
-- §3 data source / HTML scrape → Task A2 ✓
-- §3.1 schema (advisory id from ref_id, CVSS 3.1 only, no modules, textfilecontent54 OS test) → Task A2 types, Task A3 steps 4-5,9 ✓
-- §3.2 EVR corruption + normalisation + clean-anchor validation + upstream report → Task A3 (evr.go, two-pass), Task A4 ✓
+- §3 data source / HTML scrape → Task 2 ✓
+- §3.1 schema (advisory id from ref_id, CVSS 3.1 only, no modules, textfilecontent54 OS test) → Task 2 types, Task 3 steps 4-5,9 ✓
+- §3.2 EVR corruption + normalisation + clean-anchor validation + upstream report → Task 3 (evr.go, two-pass), Task 4 ✓
 - §4.1 vuls-data-update (fetch, extract, source id, ecosystem, cmds, README) → Tasks A1-A4, A2 step 6, A3 step 8 ✓
-- §4.2 vuls2 (go.mod only, verify kernel/rename defaults) → Task B1 ✓
+- §4.2 vuls2 (go.mod only, verify kernel/rename defaults) → Task 5 ✓
 - §4.3 vuls fork (constant, scanner/alinux.go, redhatbase detection, scanner.go, detector gate, vendor.go reference, go.mod, tests, README) → Tasks C1-C5 ✓
-- §5 testing (unit/golden per repo, e2e with real fixtures, regression) → Task A2 step 4, A3 step 6, B1 step 6, C4 ✓
+- §5 testing (unit/golden per repo, e2e with real fixtures, regression) → Task 2 step 4, A3 step 6, B1 step 6, C4 ✓
 - §6 rollout (PR per repo, replace→pseudo-version, bug filing, order) → A4, B1 steps 5&7, C4 steps 6-7, C5 step 4 ✓
-- §7 out of scope (alinux 2, anolis, CSAF, upstreaming) → respected; alinux 2 skipped in Task A3 step 3 ✓
+- §7 out of scope (alinux 2, anolis, CSAF, upstreaming) → respected; alinux 2 skipped in Task 3 step 3 ✓
 
-**Placeholder scan:** The only deferred detail is the exact vuls2 DB-build command in Task C4 Step 2, explicitly resolved during Task B1 Step 4 and to be recorded back into the plan — acceptable (it is a discovery step with a named owner, not a hand-wave). EOL dates in Task C2 Step 3 are marked approximate with the source URL and a "refine" note — acceptable. All code steps carry real code.
+**Placeholder scan:** The only deferred detail is the exact vuls2 DB-build command in Task 9 Step 2, explicitly resolved during Task 5 Step 4 and to be recorded back into the plan — acceptable (it is a discovery step with a named owner, not a hand-wave). EOL dates in Task 7 Step 3 are marked approximate with the source URL and a "refine" note — acceptable. All code steps carry real code.
 
-**Type consistency:** `oval.Fetch` / `oval.Extract` signatures, `oval.WithDir` / `oval.WithBaseURL` / `oval.WithRetry` options, `sanitizeEVR(string, map[string]struct{}) (string, error)`, `newAlinux(config.ServerInfo) *alinux`, `rootPrivAlinux`, `constant.Alinux = "alinux"`, `ecosystemTypes.EcosystemTypeAlinux = "alinux"`, `sourceTypes.AlinuxOVAL = "alinux-oval"`, advisory-reference `Source: "ALINUX"` — all consistent across tasks. The extractor imports the fetch package aliased as `alinux` to avoid the `oval` package-name clash (Task A3 Step 5.1).
+**Type consistency:** `oval.Fetch` / `oval.Extract` signatures, `oval.WithDir` / `oval.WithBaseURL` / `oval.WithRetry` options, `sanitizeEVR(string, map[string]struct{}) (string, error)`, `newAlinux(config.ServerInfo) *alinux`, `rootPrivAlinux`, `constant.Alinux = "alinux"`, `ecosystemTypes.EcosystemTypeAlinux = "alinux"`, `sourceTypes.AlinuxOVAL = "alinux-oval"`, advisory-reference `Source: "ALINUX"` — all consistent across tasks. The extractor imports the fetch package aliased as `alinux` to avoid the `oval` package-name clash (Task 3 Step 5.1).
