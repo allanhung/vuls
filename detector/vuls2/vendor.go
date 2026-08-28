@@ -68,6 +68,7 @@ func toVuls2Family(vuls0Family, vuls0Release string) string {
 			return vuls0Family
 		}
 	default:
+		// alinux, oracle, alma, rocky, centos, ... map 1:1 to their ecosystem type.
 		return vuls0Family
 	}
 }
@@ -641,6 +642,12 @@ func advisoryReference(e ecosystemTypes.Ecosystem, s sourceTypes.SourceID, da mo
 		return models.Reference{
 			Link:   fmt.Sprintf("https://linux.oracle.com/errata/%s.html", da.AdvisoryID),
 			Source: "ORACLE",
+			RefID:  da.AdvisoryID,
+		}, nil
+	case ecosystemTypes.EcosystemTypeAlinux:
+		return models.Reference{
+			Link:   fmt.Sprintf("https://alas.aliyun.com/errata/detail/%s", da.AdvisoryID),
+			Source: "ALINUX",
 			RefID:  da.AdvisoryID,
 		}, nil
 	case ecosystemTypes.EcosystemTypeAmazon:

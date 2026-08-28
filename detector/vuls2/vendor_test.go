@@ -5,12 +5,33 @@ import (
 	"testing"
 
 	cweTypes "github.com/MaineK00n/vuls-data-update/pkg/extract/types/data/cwe"
+	ecosystemTypes "github.com/MaineK00n/vuls-data-update/pkg/extract/types/data/detection/segment/ecosystem"
 	severityTypes "github.com/MaineK00n/vuls-data-update/pkg/extract/types/data/severity"
 	v31 "github.com/MaineK00n/vuls-data-update/pkg/extract/types/data/severity/cvss/v31"
+	sourceTypes "github.com/MaineK00n/vuls-data-update/pkg/extract/types/source"
 
 	"github.com/future-architect/vuls/constant"
 	"github.com/future-architect/vuls/models"
 )
+
+func TestAdvisoryReference_Alinux(t *testing.T) {
+	got, err := advisoryReference(
+		ecosystemTypes.Ecosystem("alinux:4"),
+		sourceTypes.AlinuxOVAL,
+		models.DistroAdvisory{AdvisoryID: "ALINUX4-SA-2026:0392"},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	want := models.Reference{
+		Link:   "https://alas.aliyun.com/errata/detail/ALINUX4-SA-2026:0392",
+		Source: "ALINUX",
+		RefID:  "ALINUX4-SA-2026:0392",
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("got %+v, want %+v", got, want)
+	}
+}
 
 func Test_MacOSCPEs(t *testing.T) {
 	type args struct {
