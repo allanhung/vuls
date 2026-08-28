@@ -327,6 +327,8 @@ func NewCveContentType(name string) CveContentType {
 		return Alma
 	case "rocky":
 		return Rocky
+	case "alinux":
+		return Alinux
 	case "fedora":
 		return Fedora
 	case "oracle":
@@ -446,7 +448,7 @@ func GetCveContentTypes(family string) []CveContentType {
 	case constant.Rocky:
 		return []CveContentType{Rocky}
 	case constant.Alinux:
-		return []CveContentType{NewCveContentType(constant.Alinux)}
+		return []CveContentType{Alinux}
 	case constant.Fedora:
 		return []CveContentType{Fedora}
 	case constant.Oracle:
@@ -513,6 +515,9 @@ const (
 
 	// Rocky is Rocky
 	Rocky CveContentType = "rocky"
+
+	// Alinux is Alibaba Cloud Linux
+	Alinux CveContentType = "alinux"
 
 	// DebianSecurityTracker is Debian Security tracker
 	DebianSecurityTracker CveContentType = "debian_security_tracker"
@@ -690,6 +695,7 @@ var AllCveContetTypes = CveContentTypes{
 	RedHatAPI,
 	Alma,
 	Rocky,
+	Alinux,
 	Debian,
 	DebianSecurityTracker,
 	Ubuntu,
