@@ -69,6 +69,41 @@ func detectRedhat(c config.ServerInfo) (bool, osTypeInterface) {
 		}
 	}
 
+	if r := exec(c, "ls /etc/alinux-release", noSudo); r.isSuccess() {
+		// Alibaba Cloud Linux ships an RHEL-compatible /etc/redhat-release and
+		// (on 3) /etc/centos-release, so it must be discovered before the
+		// AlmaLinux / Rocky / CentOS blocks.
+		if r := exec(c, "cat /etc/alinux-release", noSudo); r.isSuccess() {
+			ali := newAlinux(c)
+			result := releasePattern.FindStringSubmatch(strings.TrimSpace(r.Stdout))
+			if len(result) != 3 {
+				ali.setErrs([]error{xerrors.Errorf("Failed to parse /etc/alinux-release. r.Stdout: %s", r.Stdout)})
+				return true, ali
+			}
+
+			release := result[2]
+			major, err := strconv.Atoi(util.Major(release))
+			if err != nil {
+				ali.setErrs([]error{xerrors.Errorf("Failed to parse major version from release: %s", release)})
+				return true, ali
+			}
+			if major < 3 {
+				ali.setErrs([]error{xerrors.Errorf("Failed to init Alibaba Cloud Linux. err: not supported major version. versions prior to Alibaba Cloud Linux 3 are not supported, detected version is %s", release)})
+				return true, ali
+			}
+
+			name := strings.ToLower(strings.TrimSpace(strings.Replace(result[1], "(Aliyun Linux)", "", 1)))
+			switch name {
+			case "alibaba cloud linux":
+				ali.setDistro(constant.Alinux, release)
+				return true, ali
+			default:
+				ali.setErrs([]error{xerrors.Errorf("Failed to parse Alibaba Cloud Linux Name. release: %s", result[1])})
+				return true, ali
+			}
+		}
+	}
+
 	if r := exec(c, "ls /etc/almalinux-release", noSudo); r.isSuccess() {
 		if r := exec(c, "cat /etc/almalinux-release", noSudo); r.isSuccess() {
 			alma := newAlma(c)

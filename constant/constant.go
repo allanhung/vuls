@@ -32,6 +32,9 @@ const (
 	// Oracle is
 	Oracle = "oracle"
 
+	// Alinux is
+	Alinux = "alinux"
+
 	// FreeBSD is
 	FreeBSD = "freebsd"
 
