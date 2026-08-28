@@ -1090,6 +1090,8 @@ func (o *redhatBase) rpmQa() string {
 		default:
 			return modularity
 		}
+	case constant.Alinux:
+		return modularity
 	default:
 		v, _ := o.Distro.MajorVersion()
 		if v < 6 {
@@ -1131,6 +1133,8 @@ func (o *redhatBase) rpmQf() string {
 		default:
 			return modularity
 		}
+	case constant.Alinux:
+		return modularity
 	default:
 		v, _ := o.Distro.MajorVersion()
 		if v < 6 {

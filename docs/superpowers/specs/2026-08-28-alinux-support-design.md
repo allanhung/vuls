@@ -212,6 +212,27 @@ normalisation + upstream bug report**, rather than blocking on an upstream
 fix. Rationale: the version data is fully recoverable, the fix is contained,
 and the alternative is indefinitely no coverage.
 
+### 3.3 Known limitations
+
+Two residual upstream defects survive into the shipped dataset and belong in
+the upstream bug report rather than being worked around further:
+
+- **Residual EVR mis-assignment.** ~28 alinux-3 + ~5 alinux-4 definitions
+  have *both* multiple distinct version-releases in one OR-group *and* a
+  fragment shifted off a sibling package's name. The dash-count repair
+  (§3.2) still yields a well-formed `epoch:version-release`, but the tokens
+  can belong to the wrong package (e.g. `mingw32-freetype` ends up carrying
+  `freetype`'s version-release). This is upstream corruption the extractor
+  cannot correct — a well-formed but occasionally wrong `fixed` version.
+
+- **HOTFIX/MAIN definition id reuse.** The feed reuses one
+  `oval:com.aliyun:def:<year><seq>` id (and its entire tst/obj/ste
+  id-subtree) for a `*-HOTFIX-SA` advisory and an unrelated `ALINUX<n>-SA`
+  advisory whose test elements differ in content. The fetcher quarantines
+  the whole colliding subtree, so **both** advisories are dropped — ~10
+  pairs in alinux-3 and 1 in alinux-4 as of 2026-08-28. Also for the
+  upstream bug report.
+
 ## 4. Repo-by-repo changes
 
 ### 4.1 vuls-data-update (bulk of the work)

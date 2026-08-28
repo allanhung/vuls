@@ -465,6 +465,18 @@ kernel 0 6.6.102 5.3.3.alnx4 x86_64 kernel-6.6.102-5.3.3.alnx4.src.rpm (none)`,
 //	major, _ := strconv.Atoi(util.Major(release))          // major < 3 => not supported
 //	name    := strings.ToLower(strings.TrimSpace(strings.Replace(result[1], "(Aliyun Linux)", "", 1)))
 //	// name == "alibaba cloud linux" => setDistro(constant.Alinux, release)
+//
+// This mirrors the block's logic rather than driving detectRedhat through a
+// stubbed exec: scanner's `exec` is a plain top-level function (executil.go),
+// not a package var, and the scanner test suite has no exec-mock harness, so a
+// true end-to-end test here would need `exec` converted to an injectable var —
+// a broad change across every call site, out of scope for this fix wave.
+//
+// The `/etc/alinux-release` strings below are from live hosts:
+//   - Alinux 4: "Alibaba Cloud Linux release 4 (OpenAnolis Edition)" (ssh 10.21.34.9)
+//   - Alinux 3: derived from /tmp/alinux3/os-release.txt — VERSION_ID="3",
+//     ALINUX_MINOR_ID="2104" => release "3.2104"
+//   - Alinux 2 (unsupported): "Alibaba Cloud Linux (Aliyun Linux) release 2.1903 (Hunting Beagle)"
 func TestDetectAlinux(t *testing.T) {
 	tests := []struct {
 		input           string

@@ -114,7 +114,7 @@ Vuls is a tool created to solve the problems listed above. It has the following 
 
 - Scan with root privilege
 - Almost no load on the scan target server
-- Detect processes affected by update using yum-ps (Amazon Linux, CentOS, Alma Linux, Rocky Linux, Oracle Linux, Fedora, and RedHat)
+- Detect processes affected by update using yum-ps (Amazon Linux, CentOS, Alma Linux, Rocky Linux, Oracle Linux, Alibaba Cloud Linux, Fedora, and RedHat)
 - Detect processes which updated before but not restarting yet using checkrestart of debian-goodies (Debian and Ubuntu)
 - Offline mode scan with no internet access. (CentOS, Alma Linux, Rocky Linux, Alibaba Cloud Linux, Debian, Oracle Linux, Red Hat, Fedora, and Ubuntu)
 

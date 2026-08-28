@@ -364,6 +364,9 @@ require (
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
 
+// TODO(alinux): temporary local checkouts for cross-repo development of
+// Alibaba Cloud Linux support. Replace with merged pseudo-versions
+// (go get <module>@<sha>; remove this block) before opening the PR.
 replace (
 	github.com/MaineK00n/vuls-data-update => ../vuls-data-update
 	github.com/MaineK00n/vuls2 => ../vuls2

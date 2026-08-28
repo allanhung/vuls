@@ -32,15 +32,15 @@ import (
 //	cd ../vuls
 //	GOEXPERIMENT=jsonv2 go test ./detector/ -run TestAlinuxEndToEnd -v
 //
-// The db path defaults to /tmp/alinux-vuls2.db and can be overridden with
-// the VULS2_ALINUX_DB environment variable.
+// The db path MUST be supplied via the VULS2_ALINUX_DB environment variable;
+// the test is SKIPPED unless it is set AND the file exists.
 func TestAlinuxEndToEnd(t *testing.T) {
 	dbPath := os.Getenv("VULS2_ALINUX_DB")
 	if dbPath == "" {
-		dbPath = "/tmp/alinux-vuls2.db"
+		t.Skip("VULS2_ALINUX_DB not set; skipping alinux e2e (build the db and set the env var to run)")
 	}
 	if _, err := os.Stat(dbPath); err != nil {
-		t.Skipf("vuls2 alinux db not found at %s (set VULS2_ALINUX_DB or build it); skipping e2e", dbPath)
+		t.Skipf("vuls2 alinux db not found at %s (VULS2_ALINUX_DB); skipping e2e", dbPath)
 	}
 
 	tests := []struct {
