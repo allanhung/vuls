@@ -363,3 +363,8 @@ require (
 	sigs.k8s.io/structured-merge-diff/v6 v6.3.3 // indirect
 	sigs.k8s.io/yaml v1.6.0 // indirect
 )
+
+replace (
+	github.com/MaineK00n/vuls-data-update => ../vuls-data-update
+	github.com/MaineK00n/vuls2 => ../vuls2
+)
